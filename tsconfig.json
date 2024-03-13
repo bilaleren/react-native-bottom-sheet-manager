@@ -2,6 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
+      "test-utils": ["./utils/test-utils"],
       "react-native-bottom-sheet-manager": ["./src/index"]
     },
     "allowUnreachableCode": false,

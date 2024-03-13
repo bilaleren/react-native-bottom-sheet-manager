@@ -1,12 +1,12 @@
 {
   "name": "react-native-bottom-sheet-manager",
   "version": "0.1.0",
-  "description": "Bottom sheet manager.",
-  "main": "lib/commonjs/index",
-  "module": "lib/module/index",
+  "description": "A React Native bottom sheet manager built with @gorhom/bottom-sheet.",
+  "main": "lib/commonjs/index.js",
+  "module": "lib/module/index.js",
   "types": "lib/typescript/src/index.d.ts",
-  "react-native": "src/index",
-  "source": "src/index",
+  "source": "src/index.ts",
+  "react-native": "src/index.ts",
   "files": [
     "src",
     "lib",
@@ -28,7 +28,11 @@
   "scripts": {
     "example": "yarn workspace react-native-bottom-sheet-manager-example",
     "test": "jest",
-    "typecheck": "tsc --noEmit",
+    "test:watch": "yarn test --watch",
+    "run:ios": "yarn example ios",
+    "run:web": "yarn example web",
+    "run:android": "yarn example android",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "clean": "del-cli lib",
     "prepare": "bob build",
@@ -37,7 +41,11 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "bottom sheet",
+    "bottom sheet manager",
+    "react native bottom sheet",
+    "react native bottom sheet manager"
   ],
   "repository": {
     "type": "git",
@@ -52,11 +60,20 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
+  "dependencies": {
+    "@gorhom/bottom-sheet": "^4.6.1"
+  },
   "devDependencies": {
+    "@babel/core": "^7.23.7",
+    "@babel/preset-env": "^7.23.7",
+    "@babel/preset-flow": "^7.18.6",
+    "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.18.6",
     "@commitlint/config-conventional": "^17.0.2",
     "@evilmartians/lefthook": "^1.5.0",
     "@react-native/eslint-config": "^0.73.1",
     "@release-it/conventional-changelog": "^5.0.0",
+    "@testing-library/react-native": "^12.4.3",
     "@types/jest": "^29.5.5",
     "@types/react": "^18.2.44",
     "commitlint": "^17.0.2",
@@ -69,15 +86,20 @@
     "react": "18.2.0",
     "react-native": "0.73.4",
     "react-native-builder-bob": "^0.20.0",
+    "react-native-gesture-handler": "^2.15.0",
+    "react-native-reanimated": "^2.8.0",
+    "react-test-renderer": "^18.2.0",
     "release-it": "^15.0.0",
     "typescript": "^5.2.2"
   },
-  "resolutions": {
-    "@types/react": "^18.2.44"
-  },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-gesture-handler": ">=1.10.1",
+    "react-native-reanimated": ">=2.2.0"
+  },
+  "resolutions": {
+    "@types/react": "^18.2.44"
   },
   "workspaces": [
     "example"
@@ -85,9 +107,33 @@
   "packageManager": "yarn@3.6.1",
   "jest": {
     "preset": "react-native",
+    "clearMocks": true,
+    "resetMocks": true,
+    "resetModules": true,
+    "setupFiles": [
+      "<rootDir>/jest.setup.ts"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "utils",
+      "<rootDir>"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest-env.setup.ts"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native(-.*)?|jest(-.*)?|@react-native(-community)?)/)"
+    ],
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx",
+      "json"
     ]
   },
   "commitlint": {
@@ -151,6 +197,7 @@
       [
         "typescript",
         {
+          "tsc": "./node_modules/.bin/tsc",
           "project": "tsconfig.build.json"
         }
       ]

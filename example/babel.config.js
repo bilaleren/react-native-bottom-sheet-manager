@@ -14,9 +14,15 @@ module.exports = function (api) {
           alias: {
             // For development, we want to alias the library to the source
             [pak.name]: path.join(__dirname, '..', pak.source),
+            'react-native/Libraries/vendor/emitter/EventEmitter': path.join(
+              __dirname,
+              'node_modules',
+              'react-native/Libraries/vendor/emitter/EventEmitter'
+            ),
           },
         },
       ],
+      'react-native-reanimated/plugin',
     ],
   };
 };
