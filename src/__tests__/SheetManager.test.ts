@@ -104,6 +104,17 @@ describe('SheetManager & PrivateSheetManager', () => {
     });
   });
 
+  it('close()', () => {
+    const listener = jest.fn();
+
+    EventManager.onHideSheetWrapper('test', listener);
+
+    SheetManager.close('test');
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledWith(undefined, DEFAULT_CONTEXT_NAME);
+  });
+
   it('hideAll()', () => {
     const listeners = {
       'test': jest.fn(),
@@ -157,7 +168,8 @@ describe('SheetManager & PrivateSheetManager', () => {
       expect(listener).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledWith(DEFAULT_CONTEXT_NAME);
       expect(
-        TestSheet === PrivateSheetManager.getSheet('test', DEFAULT_CONTEXT_NAME)
+        TestSheet ===
+          PrivateSheetManager.getSheetComponent('test', DEFAULT_CONTEXT_NAME)
       ).toBe(true);
     });
 
@@ -171,13 +183,14 @@ describe('SheetManager & PrivateSheetManager', () => {
       expect(listener).toHaveBeenCalledTimes(1);
       expect(listener).toHaveBeenCalledWith(DEFAULT_CONTEXT_NAME);
       expect(
-        TestSheet === PrivateSheetManager.getSheet('test', DEFAULT_CONTEXT_NAME)
+        TestSheet ===
+          PrivateSheetManager.getSheetComponent('test', DEFAULT_CONTEXT_NAME)
       ).toBe(true);
 
       PrivateSheetManager.unregisterSheet('test');
 
       expect(
-        PrivateSheetManager.getSheet('test', DEFAULT_CONTEXT_NAME)
+        PrivateSheetManager.getSheetComponent('test', DEFAULT_CONTEXT_NAME)
       ).toBeNull();
     });
 
@@ -201,13 +214,14 @@ describe('SheetManager & PrivateSheetManager', () => {
       expect(PrivateSheetManager.getContexts()).toStrictEqual([]);
     });
 
-    it('getSheet()', () => {
+    it('getSheetComponent()', () => {
       const TestSheet = () => null;
 
       PrivateSheetManager.registerSheet('test', TestSheet);
 
       expect(
-        TestSheet === PrivateSheetManager.getSheet('test', DEFAULT_CONTEXT_NAME)
+        TestSheet ===
+          PrivateSheetManager.getSheetComponent('test', DEFAULT_CONTEXT_NAME)
       ).toBe(true);
     });
 
