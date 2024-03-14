@@ -24,7 +24,7 @@ const SheetWrapper: React.FC<SheetWrapperProps> = (props) => {
   const [visible, setVisible] = React.useState(false);
   const sheetInstanceRef = React.useRef<BottomSheetInstance>(null);
 
-  const Sheet = PrivateSheetManager.getSheet(id, contextProp);
+  const SheetComponent = PrivateSheetManager.getSheetComponent(id, contextProp);
 
   React.useEffect(() => {
     const subscriptions = [
@@ -64,7 +64,7 @@ const SheetWrapper: React.FC<SheetWrapperProps> = (props) => {
     }
   }, [id, visible, payload, contextProp]);
 
-  if (!Sheet) {
+  if (!SheetComponent) {
     return null;
   }
 
@@ -72,7 +72,7 @@ const SheetWrapper: React.FC<SheetWrapperProps> = (props) => {
     <ProviderCurrentContext.Provider value={contextProp}>
       <CurrentSheetInstanceContext.Provider value={sheetInstanceRef}>
         {/* @ts-ignore */}
-        <Sheet id={id} payload={payload} context={contextProp} />
+        <SheetComponent id={id} payload={payload} context={contextProp} />
       </CurrentSheetInstanceContext.Provider>
     </ProviderCurrentContext.Provider>
   ) : null;

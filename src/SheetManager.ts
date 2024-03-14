@@ -29,7 +29,7 @@ const makeKey = (id: string, context: string) => `${id}.${context}`;
  * @param id Id of the `BottomSheet to show.
  * @param args
  */
-function show<Id extends SheetIds>(
+function showSheet<Id extends SheetIds>(
   id: SheetID<Id>,
   ...args: SheetPayload<Id> extends never
     ? [
@@ -54,7 +54,7 @@ function show<Id extends SheetIds>(
         },
       ]
 ): Promise<SheetReturnValue<Id> | undefined>;
-function show(...args: any[]) {
+function showSheet(...args: any[]) {
   const [id, options = {}] = args;
   const { payload, context: providedContext = DEFAULT_CONTEXT_NAME } = options;
 
@@ -77,7 +77,7 @@ function show(...args: any[]) {
  * @param id Id of the `BottomSheet to hide.
  * @param args
  */
-function hide<Id extends SheetIds>(
+function hideSheet<Id extends SheetIds>(
   id: SheetID<Id>,
   ...args: SheetReturnValue<Id> extends never
     ? [
@@ -102,7 +102,7 @@ function hide<Id extends SheetIds>(
         },
       ]
 ): Promise<SheetReturnValue<Id> | undefined>;
-function hide(...args: any[]) {
+function hideSheet(...args: any[]) {
   const [id, options = {}] = args;
   const { value, context: providedContext = DEFAULT_CONTEXT_NAME } = options;
 
@@ -121,7 +121,48 @@ function hide(...args: any[]) {
   });
 }
 
-function getSheet(
+/**
+ * Close the `BottomSheet` with an id.
+ * @param id Id of the `BottomSheet to close.
+ * @param context Provide `context` of the `SheetManagerProvider` where you want to close the bottom sheet.
+ */
+function closeSheet<Id extends SheetIds>(
+  id: SheetID<Id>,
+  context = DEFAULT_CONTEXT_NAME
+): void {
+  const subscription = EventManager.onCloseSheet(id, (_, ctx) => {
+    if (ctx !== context) {
+      return;
+    }
+
+    subscription.remove();
+    PrivateSheetManager.unregisterInstance(id, context);
+  });
+
+  EventManager.hideSheetWrapper(id, undefined, context);
+}
+
+/**
+ * Get any opened sheet instance with id.
+ * @param id ID of the `BottomSheet`.
+ * @param context Provide `context` of the `SheetManagerProvider` where you want to get the sheet instance.
+ */
+function getSheet<Id extends SheetIds>(
+  id: SheetID<Id>,
+  context?: string
+): BottomSheetInstance<Id> | null {
+  const sheetContext = getSheetContext(id, context);
+
+  if (!sheetContext) {
+    return null;
+  }
+
+  const key = makeKey(id, sheetContext);
+
+  return instances[key] || null;
+}
+
+function getSheetComponent(
   id: string,
   context: string
 ): React.ComponentType<SheetProps> | null {
@@ -178,27 +219,10 @@ function getSheetContext(id: string, context?: string): string | null {
 }
 
 const SheetManager = {
-  show,
-  hide,
-  /**
-   * Get any opened sheet instance with id.
-   * @param id ID of the `BottomSheet`.
-   * @param context Provide `context` of the `SheetManagerProvider` where you want to get the sheet instance.
-   */
-  get<Id extends SheetIds>(
-    id: SheetID<Id>,
-    context?: string
-  ): BottomSheetInstance<Id> | null {
-    const sheetContext = getSheetContext(id, context);
-
-    if (!sheetContext) {
-      return null;
-    }
-
-    const key = makeKey(id, sheetContext);
-
-    return instances[key] || null;
-  },
+  show: showSheet,
+  hide: hideSheet,
+  close: closeSheet,
+  get: getSheet,
   /**
    * Hide all the opened BottomSheets.
    */
@@ -272,8 +296,8 @@ export const PrivateSheetManager = {
   > {
     return sheetRegistry;
   },
-  getSheet,
   getRegistry,
+  getSheetComponent,
   getSheetZIndex(id: string, context: string): number {
     const key = makeKey(id, context);
     const index = keys.indexOf(key);
