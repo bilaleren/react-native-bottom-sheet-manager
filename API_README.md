@@ -4,6 +4,7 @@
 - [SheetManager](#sheetmanager)
   - [show](#sheetmanagershow)
   - [hide](#sheetmanagerhide)
+  - [close](#sheetmanagerclose)
   - [get](#sheetmanagerget)
   - [hideAll](#sheetmanagerhideall)
 - [Hooks](#hooks)
@@ -103,6 +104,36 @@ const App: React.FC = () => {
 export default App;
 ```
 
+### `SheetManager.close()`
+
+Close the `BottomSheet` with an id.
+
+#### Params
+
+| Name    | Type   | Required | Description                                                                               |
+|---------|--------|----------|-------------------------------------------------------------------------------------------|
+| id      | string | true     | Id of the `BottomSheet to close.                                                          |
+| context | string | false    | Provide `context` of the `SheetManagerProvider` where you want to close the bottom sheet. |
+
+#### Usage
+
+```tsx
+import * as React from 'react';
+import { Button } from 'react-native';
+import { SheetManager } from 'react-native-bottom-sheet-manager';
+
+const App: React.FC = () => {
+  return (
+    <Button
+      title="Close sheet"
+      onPress={() => SheetManager.close('my-sheet')}
+    />
+  );
+};
+
+export default App;
+```
+
 ### `SheetManager.get()`
 
 Get any opened sheet instance with id.
@@ -124,13 +155,10 @@ import { SheetManager } from 'react-native-bottom-sheet-manager';
 const App: React.FC = () => {
   return (
     <Button
-      title="Hide sheet"
-      onPress={() =>
-        SheetManager.show('my-sheet', {
-          value: 'any value',
-          context: 'custom-context',
-        })
-      }
+      title="Log the sheet"
+      onPress={() => {
+        console.log('my sheet:', SheetManager.get('my-sheet'));
+      }}
     />
   );
 };
@@ -163,7 +191,7 @@ export default App;
 
 ## Hooks
 
-### `useSheet`
+### `useSheet()`
 
 Get any opened sheet instance with id.
 
@@ -198,7 +226,7 @@ const App: React.FC = () => {
 export default App;
 ```
 
-### `useSheetPayload`
+### `useSheetPayload()`
 
 After the sheet is shown, get the payload of the sheet with id.
 
@@ -240,7 +268,7 @@ const App: React.FC = () => {
 export default App;
 ```
 
-### `useSheetValue`
+### `useSheetValue()`
 
 After the sheet is closed, get the value of the sheet with id.
 
@@ -282,7 +310,7 @@ const App: React.FC = () => {
 export default App;
 ```
 
-### `useOnShowSheet`
+### `useOnShowSheet()`
 
 Listen to the showing event of the `BottomSheet` with an id.
 
@@ -323,7 +351,7 @@ const App: React.FC = () => {
 export default App;
 ```
 
-### `useOnHideSheet`
+### `useOnHideSheet()`
 
 Listen to the hiding event of the `BottomSheet` with an id.
 
@@ -364,7 +392,7 @@ const App: React.FC = () => {
 export default App;
 ```
 
-### `useOnCloseSheet`
+### `useOnCloseSheet()`
 
 Listen to the closing event of the `BottomSheet` with an id.
 
@@ -404,3 +432,4 @@ const App: React.FC = () => {
 
 export default App;
 ```
+
