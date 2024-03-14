@@ -85,7 +85,7 @@ interface BottomSheetFC
   > {
   <Id extends SheetIds>(
     props: BottomSheetProps & React.RefAttributes<BottomSheetInstance<Id>>
-  ): React.ReactNode;
+  ): React.JSX.Element;
 
   // Components
   View: typeof BottomSheetView;
