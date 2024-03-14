@@ -1,6 +1,6 @@
 {
   "name": "react-native-bottom-sheet-manager",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A React Native bottom sheet manager built with @gorhom/bottom-sheet.",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
