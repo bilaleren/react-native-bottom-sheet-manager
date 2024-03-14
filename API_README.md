@@ -316,10 +316,10 @@ Listen to the showing event of the `BottomSheet` with an id.
 
 #### Params
 
-| Name     | Type     | Required | Description                      |
-|----------|----------|----------|----------------------------------|
-| id       | string   | true     | ID of the `BottomSheet`.         |
-| listener | function | true     | Listen to closing event.         |
+| Name     | Type     | Required | Description              |
+|----------|----------|----------|--------------------------|
+| id       | string   | true     | ID of the `BottomSheet`. |
+| listener | function | true     | Listen to showing event. |
 
 #### Usage
 
