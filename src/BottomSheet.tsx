@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import RNBottomSheet, {
-  WINDOW_HEIGHT,
   BottomSheetView,
   BottomSheetScrollView,
   BottomSheetFlatList,
@@ -37,23 +36,28 @@ export type BottomSheetProps = Omit<RNBottomSheetProps, 'children'> & {
   id: SheetID<SheetIds>;
 
   /**
+   * Content of the `BottomSheet`.
+   */
+  children: React.ReactNode;
+
+  /**
    * When set to `true`, the `BottomSheet` is shown in a `ReactNative.Modal`.
    * @default false
    */
   useModal?: boolean;
 
   /**
-   * Content of the `BottomSheet`.
+   * Component of the custom `Modal`.
    */
-  children: React.ReactNode;
+  modalComponent?: React.ComponentType<ModalProps>;
 
   /**
-   * Triggered when `ReactNative.Modal` is shown.
+   * Triggered when `Modal` is shown.
    */
   onModalShow?: (event: NativeSyntheticEvent<any>) => void;
 
   /**
-   * Triggered when `ReactNative.Modal` is closing.
+   * Triggered when `Modal` is closing.
    */
   onModalRequestClose?: (event: NativeSyntheticEvent<any>) => void;
 
@@ -63,7 +67,7 @@ export type BottomSheetProps = Omit<RNBottomSheetProps, 'children'> & {
   supportedOrientations?: ModalProps['supportedOrientations'];
 
   /**
-   * Component of the `ReactNative.Modal` container.
+   * Component of the `Modal` container.
    */
   modalContainerComponent?: React.ComponentType;
 
@@ -73,11 +77,6 @@ export type BottomSheetProps = Omit<RNBottomSheetProps, 'children'> & {
    */
   hardwareBackPressToClose?: boolean;
 };
-
-const defaultSnapPoints: readonly number[] = [
-  WINDOW_HEIGHT / 2,
-  WINDOW_HEIGHT - 200,
-];
 
 interface BottomSheetFC
   extends React.MemoExoticComponent<
@@ -100,20 +99,23 @@ interface BottomSheetFC
   TextInput: typeof BottomSheetTextInput;
 }
 
+const SNAP_POINTS: readonly string[] = ['50%', '80%'];
+
 const BottomSheetComponent = React.forwardRef<
   BottomSheetInstance,
   BottomSheetProps
 >((props, ref) => {
   const {
     id: sheetId,
-    useModal = false,
     children,
-    snapPoints = defaultSnapPoints,
+    useModal = false,
+    snapPoints = SNAP_POINTS,
     onClose,
     onModalShow,
     onModalRequestClose,
     supportedOrientations,
     hardwareBackPressToClose = true,
+    modalComponent: ModalComponent = Modal,
     modalContainerComponent: ModalContainerComponent = React.Fragment,
     ...other
   } = props;
@@ -139,7 +141,7 @@ const BottomSheetComponent = React.forwardRef<
       PrivateSheetManager.registerInstance(sheetId, currentCtx, getInstance());
     },
   });
-  const hardwareBackPressEvent = React.useRef<NativeEventSubscription>();
+  const hardwareBackPressSubscription = React.useRef<NativeEventSubscription>();
 
   const getInstance = React.useCallback(
     (): BottomSheetInstance => ({
@@ -201,7 +203,7 @@ const BottomSheetComponent = React.forwardRef<
     EventManager.closeSheet(sheetId, valueRef.current, currentCtx);
     setVisible(false);
     valueRef.current = undefined;
-    hardwareBackPressEvent.current?.remove();
+    hardwareBackPressSubscription.current?.remove();
     onClose?.();
   }, [sheetId, currentCtx, setVisible, onClose]);
 
@@ -225,7 +227,7 @@ const BottomSheetComponent = React.forwardRef<
 
   React.useEffect(() => {
     if (!useModal && Platform.OS === 'android' && hardwareBackPressToClose) {
-      hardwareBackPressEvent.current = BackHandler.addEventListener(
+      hardwareBackPressSubscription.current = BackHandler.addEventListener(
         'hardwareBackPress',
         () => {
           const bottomSheet = bottomSheetRef.current;
@@ -239,27 +241,25 @@ const BottomSheetComponent = React.forwardRef<
       );
     }
 
-    return () => hardwareBackPressEvent.current?.remove();
+    return () => hardwareBackPressSubscription.current?.remove();
   }, [useModal, hardwareBackPressToClose]);
 
   React.useImperativeHandle(ref, getInstance, [getInstance]);
 
   const sheet = (
-    <View style={styles.sheetContainer}>
-      <RNBottomSheet
-        {...other}
-        ref={bottomSheetRef}
-        onClose={handleCloseSheet}
-        snapPoints={snapPoints}
-      >
-        {children}
-      </RNBottomSheet>
-    </View>
+    <RNBottomSheet
+      {...other}
+      ref={bottomSheetRef}
+      onClose={handleCloseSheet}
+      snapPoints={snapPoints}
+    >
+      {children}
+    </RNBottomSheet>
   );
 
   return visible ? (
     useModal ? (
-      <Modal
+      <ModalComponent
         visible={true}
         transparent={true}
         animationType="none"
@@ -270,7 +270,7 @@ const BottomSheetComponent = React.forwardRef<
         <GestureHandlerRootView style={styles.handlerRootView}>
           <ModalContainerComponent>{sheet}</ModalContainerComponent>
         </GestureHandlerRootView>
-      </Modal>
+      </ModalComponent>
     ) : (
       <View
         style={[
@@ -302,9 +302,6 @@ if (__DEV__) {
 }
 
 const styles = StyleSheet.create({
-  sheetContainer: {
-    flex: 1,
-  },
   handlerRootView: {
     flex: 1,
   },
