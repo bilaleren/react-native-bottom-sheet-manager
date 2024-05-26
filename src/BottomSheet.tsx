@@ -5,6 +5,8 @@ import {
   Platform,
   StyleSheet,
   BackHandler,
+  type ViewStyle,
+  type StyleProp,
   type ModalProps,
   type NativeSyntheticEvent,
   type NativeEventSubscription,
@@ -67,15 +69,15 @@ export type BottomSheetProps = Omit<RNBottomSheetProps, 'children'> & {
   supportedOrientations?: ModalProps['supportedOrientations'];
 
   /**
-   * Component of the `Modal` container.
-   */
-  modalContainerComponent?: React.ComponentType;
-
-  /**
    * When set to true, `BottomSheet` is closed when the hardware back button is pressed.
    * @default true
    */
   hardwareBackPressToClose?: boolean;
+
+  /**
+   * Style of the `GestureHandlerRootView` component.
+   */
+  gestureHandlerRootViewStyle?: StyleProp<ViewStyle>;
 };
 
 interface BottomSheetFC
@@ -116,7 +118,7 @@ const BottomSheetComponent = React.forwardRef<
     supportedOrientations,
     hardwareBackPressToClose = true,
     modalComponent: ModalComponent = Modal,
-    modalContainerComponent: ModalContainerComponent = React.Fragment,
+    gestureHandlerRootViewStyle,
     ...other
   } = props;
 
@@ -265,10 +267,13 @@ const BottomSheetComponent = React.forwardRef<
         animationType="none"
         onShow={handleModalShow}
         onRequestClose={handleRequestClose}
+        statusBarTranslucent={true}
         supportedOrientations={supportedOrientations}
       >
-        <GestureHandlerRootView style={styles.handlerRootView}>
-          <ModalContainerComponent>{sheet}</ModalContainerComponent>
+        <GestureHandlerRootView
+          style={[styles.gestureHandlerRootView, gestureHandlerRootViewStyle]}
+        >
+          {sheet}
         </GestureHandlerRootView>
       </ModalComponent>
     ) : (
@@ -302,8 +307,10 @@ if (__DEV__) {
 }
 
 const styles = StyleSheet.create({
-  handlerRootView: {
-    flex: 1,
+  gestureHandlerRootView: {
+    width: '100%',
+    height: '100%',
+    ...StyleSheet.absoluteFillObject,
   },
 });
 
